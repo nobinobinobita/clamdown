@@ -1,170 +1,200 @@
-<!DOCTYPE html>
-<html lang="zh-HK">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>聲音視覺提示器</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body, html { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; background: #2c3e50; }
+<script>
+    const PARENT_PASSWORD = "0000";
+    const HIGH_DB_THRESHOLD = 60;
+    const QUIET_HOLD_TIME_MS = 3000;
+    const COLOR_QUIET = "#2ecc71";
+    const COLOR_LOUD = "#3498db";
 
-        #start-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c3e50; color: #ffffff; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px;
-        }
-        #start-btn {
-            margin-top: 20px; padding: 18px 45px; font-size: 1.3rem; border: none;
-            border-radius: 35px; background: #27ae60; color: white; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
+    const DEFAULT_QUIET_IMAGES = ["https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600"];
+    const DEFAULT_LOUD_IMAGES = ["https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600"];
 
-        #main-container {
-            width: 100%; height: 100%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: background-color 0.8s ease; position: relative;
-        }
+    let quietImages = [];
+    let loudImages = [];
+    let currentTab = 'quiet';
 
-        .display-image {
-            max-width: 85%; max-height: 60vh; border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; object-fit: contain;
-        }
+    let audioContext, analyser, microphone, stream;
+    let isLoud = false;
+    let quietStartTime = null;
 
-        .status-text {
-            margin-top: 30px; font-size: 1.8rem; font-weight: bold; color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center; padding: 0 20px;
-        }
+    const startBtn = document.getElementById('start-btn');
+    const startOverlay = document.getElementById('start-overlay');
+    const mainContainer = document.getElementById('main-container');
+    const displayImg = document.getElementById('display-img');
+    const statusText = document.getElementById('status-text');
+    
+    const settingsIcon = document.getElementById('settings-icon');
+    const passwordModal = document.getElementById('password-modal');
+    const pwdInput = document.getElementById('pwd-input');
+    const pwdConfirmBtn = document.getElementById('pwd-confirm-btn');
+    const pwdCancelBtn = document.getElementById('pwd-cancel-btn');
 
-        #settings-icon {
-            position: absolute; bottom: 15px; right: 15px; font-size: 1.8rem;
-            color: rgba(255,255,255,0.5); z-index: 50; cursor: pointer; padding: 10px;
-        }
+    const settingsModal = document.getElementById('settings-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const fileInput = document.getElementById('file-input');
+    const photoGrid = document.getElementById('photo-grid');
+    const uploadLabel = document.getElementById('upload-label');
 
-        /* 密碼驗證彈窗 */
-        #password-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.88); color: white; display: none; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 300; padding: 20px;
-        }
-        #password-modal input {
-            padding: 12px 20px; font-size: 1.3rem; text-align: center; border-radius: 10px;
-            border: 2px solid #3498db; margin: 15px 0; width: 220px; outline: none; background: #fff; color: #000;
-        }
-        .pwd-btn-group { display: flex; gap: 10px; }
-        .pwd-btn { padding: 12px 28px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .pwd-confirm { background: #3498db; color: white; }
-        .pwd-cancel { background: #e74c3c; color: white; }
+    loadStoredImages();
 
-        /* 家長設定彈窗 */
-        #settings-modal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95); color: white; display: none; flex-direction: column;
-            z-index: 200; padding: 20px; box-sizing: border-box; overflow-y: auto;
-        }
-        #settings-modal h3 { margin-bottom: 15px; text-align: center; font-size: 1.3rem; }
-
-        .tab-container { display: flex; margin-bottom: 15px; border-bottom: 2px solid #444; }
-        .tab-btn {
-            flex: 1; padding: 12px; background: none; border: none; color: #888;
-            font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center;
-        }
-        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; }
-
-        .upload-btn-wrapper { text-align: center; margin-bottom: 15px; }
-        .custom-upload-btn {
-            background: #3498db; color: white; padding: 10px 18px; border-radius: 10px;
-            display: inline-block; font-weight: bold; cursor: pointer; font-size: 0.9rem;
-        }
-        #file-input { display: none; }
-
-        .photo-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; flex-grow: 1;
-        }
-        .photo-item {
-            position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid #555;
-        }
-        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .delete-btn {
-            position: absolute; top: 2px; right: 2px; background: red; color: white;
-            border: none; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; cursor: pointer;
-        }
-
-        .close-modal-btn {
-            background: #27ae60; color: white; padding: 12px; border: none;
-            border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="start-overlay">
-        <h2>聲音視覺提示器</h2>
-        <p style="margin-top:10px; opacity:0.8;">請點擊按鈕開啟麥克風監測</p>
-        <button id="start-btn">開始使用</button>
-    </div>
-
-    <div id="main-container">
-        <img id="display-img" class="display-image" src="" alt="提示圖片">
-        <div id="status-text" class="status-text">...</div>
-        <div id="settings-icon">⚙️</div>
-    </div>
-
-    <!-- 密碼驗證彈窗 -->
-    <div id="password-modal">
-        <h3>🔒 家長身份驗證</h3>
-        <p style="font-size:0.85rem; color:#ccc; margin-top:5px;">請輸入家長密碼以存取設定</p>
-        <input type="password" id="pwd-input" placeholder="預設密碼 0000" pattern="[0-9]*" inputmode="numeric">
-        <div class="pwd-btn-group">
-            <button class="pwd-btn pwd-cancel" id="pwd-cancel-btn">取消</button>
-            <button class="pwd-btn pwd-confirm" id="pwd-confirm-btn">確定</button>
-        </div>
-    </div>
-
-    <!-- 家長設定選單 -->
-    <div id="settings-modal">
-        <h3>⚙️ 家長圖片管理面板</h3>
-
-        <div class="tab-container">
-            <button id="tab-quiet" class="tab-btn active" onclick="switchTab('quiet')">🟢 平靜獎勵圖</button>
-            <button id="tab-loud" class="tab-btn" onclick="switchTab('loud')">🔵 冷靜提示圖</button>
-        </div>
-
-        <div class="upload-btn-wrapper">
-            <label for="file-input" id="upload-label" class="custom-upload-btn">➕ 上傳平靜獎勵圖</label>
-            <input type="file" id="file-input" accept="image/*" multiple>
-        </div>
-
-        <div id="photo-grid" class="photo-grid"></div>
-
-        <button id="close-modal-btn" class="close-modal-btn">完成並儲存</button>
-    </div>
-
-    <script>
-        const PARENT_PASSWORD = "0000";
-
-        const HIGH_DB_THRESHOLD = 60;
-        const QUIET_HOLD_TIME_MS = 3000;
-        const COLOR_QUIET = "#2ecc71";
-        const COLOR_LOUD = "#3498db";
-
-        const DEFAULT_QUIET_IMAGES = ["https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600"];
-        const DEFAULT_LOUD_IMAGES = ["https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600"];
-
-        let quietImages = [];
-        let loudImages = [];
-        let currentTab = 'quiet';
-
-        let audioContext, analyser, microphone, stream;
-        let isLoud = false;
-        let quietStartTime = null;
-
-        const startBtn = document.getElementById('start-btn');
-        const startOverlay = document.getElementById('start-overlay');
-        const mainContainer = document.getElementById('main-container');
-        const displayImg = document.getElementById('display-img');
-        const statusText = document.getElementById('status-text');
+    // 針對 iOS 最佳化的啟動邏輯
+    startBtn.onclick = function() {
+        startBtn.innerText = "載入中...";
         
-        const settingsIcon = document.getElementById('settings-icon');
-        const passwordModal = document.getElementById('password-modal');
-        const pwdInput = document
+        // 1. 先在點擊事件中同步建立/解鎖 AudioContext
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        audioContext = new AudioCtx();
+        audioContext.resume();
+
+        // 2. 請求麥克風存取
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            alert('錯誤：此瀏覽器不支援麥克風存取，請確保網址為 https://！');
+            startBtn.innerText = "開始使用";
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(function(micStream) {
+                stream = micStream;
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                analyser.fftSize = 256;
+                microphone.connect(analyser);
+
+                startOverlay.style.display = 'none';
+                setQuietState();
+                processAudio();
+            })
+            .catch(function(err) {
+                alert('無法取得麥克風權限：' + err.name + ' - ' + err.message);
+                startBtn.innerText = "開始使用";
+            });
+    };
+
+    settingsIcon.addEventListener('click', () => {
+        pwdInput.value = '';
+        passwordModal.style.display = 'flex';
+        pwdInput.focus();
+    });
+
+    pwdCancelBtn.addEventListener('click', () => { passwordModal.style.display = 'none'; });
+    pwdConfirmBtn.addEventListener('click', verifyPassword);
+    pwdInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyPassword(); });
+
+    function verifyPassword() {
+        if (pwdInput.value === PARENT_PASSWORD) {
+            passwordModal.style.display = 'none';
+            settingsModal.style.display = 'flex';
+            renderPhotoGrid();
+        } else {
+            alert('密碼錯誤！');
+            pwdInput.value = '';
+        }
+    }
+
+    closeModalBtn.addEventListener('click', () => { settingsModal.style.display = 'none'; });
+
+    window.switchTab = function(tab) {
+        currentTab = tab;
+        document.getElementById('tab-quiet').classList.toggle('active', tab === 'quiet');
+        document.getElementById('tab-loud').classList.toggle('active', tab === 'loud');
+        uploadLabel.textContent = tab === 'quiet' ? '➕ 上傳平靜獎勵圖' : '➕ 上傳冷靜提示圖';
+        renderPhotoGrid();
+    };
+
+    fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (!files.length) return;
+        const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                targetArray.push(event.target.result);
+                saveImagesToStorage();
+                renderPhotoGrid();
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    function renderPhotoGrid() {
+        photoGrid.innerHTML = '';
+        const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
+
+        targetArray.forEach((imgSrc, index) => {
+            const item = document.createElement('div');
+            item.className = 'photo-item';
+            item.innerHTML = `
+                <img src="${imgSrc}">
+                <button class="delete-btn" onclick="deleteImage(${index})">×</button>
+            `;
+            photoGrid.appendChild(item);
+        });
+    }
+
+    window.deleteImage = function(index) {
+        const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
+        targetArray.splice(index, 1);
+        saveImagesToStorage();
+        renderPhotoGrid();
+    };
+
+    function saveImagesToStorage() {
+        try {
+            localStorage.setItem('user_quiet_images', JSON.stringify(quietImages));
+            localStorage.setItem('user_loud_images', JSON.stringify(loudImages));
+        } catch (e) {
+            alert('儲存失敗：照片空間不足！');
+        }
+    }
+
+    function loadStoredImages() {
+        const storedQuiet = localStorage.getItem('user_quiet_images');
+        const storedLoud = localStorage.getItem('user_loud_images');
+        if (storedQuiet) { try { quietImages = JSON.parse(storedQuiet); } catch(e) {} }
+        if (storedLoud) { try { loudImages = JSON.parse(storedLoud); } catch(e) {} }
+    }
+
+    function processAudio() {
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+        let currentDb = Math.round(((sum / dataArray.length) / 255) * 100);
+
+        const now = Date.now();
+
+        if (currentDb > HIGH_DB_THRESHOLD) {
+            quietStartTime = null;
+            if (!isLoud) setLoudState();
+        } else {
+            if (isLoud) {
+                if (!quietStartTime) {
+                    quietStartTime = now;
+                } else if (now - quietStartTime >= QUIET_HOLD_TIME_MS) {
+                    setQuietState();
+                }
+            }
+        }
+        requestAnimationFrame(processAudio);
+    }
+
+    function setQuietState() {
+        isLoud = false;
+        mainContainer.style.backgroundColor = COLOR_QUIET;
+        const activeList = quietImages.length > 0 ? quietImages : DEFAULT_QUIET_IMAGES;
+        displayImg.src = activeList[Math.floor(Math.random() * activeList.length)];
+        displayImg.style.display = 'block';
+        statusText.textContent = "保持平靜，做得好！";
+    }
+
+    function setLoudState() {
+        isLoud = true;
+        mainContainer.style.backgroundColor = COLOR_LOUD;
+        const activeList = loudImages.length > 0 ? loudImages : DEFAULT_LOUD_IMAGES;
+        displayImg.src = activeList[Math.floor(Math.random() * activeList.length)];
+        displayImg.style.display = 'block';
+        statusText.textContent = "聲音太大囉，試試這個冷靜方法...";
+    }
+</script>
