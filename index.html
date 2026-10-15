@@ -23,34 +23,43 @@
 
         #main-container {
             width: 100%; height: 100%; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: background-color 0.8s ease; position: relative;
+            justify-content: center; align-items: center; transition: background-color 0.5s ease; position: relative;
         }
 
-        .volume-meter-container {
-            position: absolute; top: 20px; left: 5%; width: 90%;
-            background: rgba(0, 0, 0, 0.25); border-radius: 15px; padding: 10px 15px;
-            display: flex; flex-direction: column; align-items: center; backdrop-filter: blur(5px);
+        .top-control-panel {
+            position: absolute; top: 15px; left: 3%; width: 94%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.3); border-radius: 20px; padding: 10px 15px;
+            backdrop-filter: blur(8px); z-index: 10;
         }
-        .volume-meter-bar-bg {
-            width: 100%; height: 16px; background: rgba(255, 255, 255, 0.3);
-            border-radius: 8px; overflow: hidden; margin-top: 5px;
+
+        .vu-meter {
+            display: flex; gap: 4px; flex-grow: 1; max-width: 60%; height: 22px;
+            background: rgba(0,0,0,0.4); padding: 3px; border-radius: 6px;
         }
-        .volume-meter-bar-fill {
-            height: 100%; width: 0%; background: #ffffff;
-            transition: width 0.1s ease-out, background-color 0.3s ease; border-radius: 8px;
+        .vu-segment {
+            flex: 1; background: rgba(255, 255, 255, 0.15); border-radius: 3px;
+            transition: background-color 0.1s ease;
         }
-        .volume-text {
-            color: white; font-size: 0.9rem; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        .vu-segment.active-green { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+        .vu-segment.active-yellow { background: #f1c40f; box-shadow: 0 0 6px #f1c40f; }
+        .vu-segment.active-red { background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
+
+        .pause-toggle-btn {
+            background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.5);
+            padding: 8px 14px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;
+            cursor: pointer; display: flex; align-items: center; gap: 5px;
         }
+        .pause-toggle-btn.paused { background: #e67e22; border-color: #d35400; }
 
         .display-image {
-            max-width: 85%; max-height: 55vh; border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; object-fit: contain; margin-top: 40px;
+            max-width: 85%; max-height: 52vh; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; object-fit: contain; margin-top: 50px;
         }
 
         .status-text {
-            margin-top: 20px; font-size: 1.8rem; font-weight: bold; color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center; padding: 0 20px;
+            margin-top: 20px; font-size: 1.6rem; font-weight: bold; color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3); text-align: center; padding: 0 20px;
         }
 
         #settings-icon {
@@ -79,6 +88,15 @@
         }
         #settings-modal h3 { margin-bottom: 15px; text-align: center; font-size: 1.3rem; }
 
+        .mode-select-box {
+            background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; margin-bottom: 15px;
+        }
+        .mode-select-box label { font-size: 0.85rem; color: #ccc; display: block; margin-bottom: 5px; }
+        .mode-select-box select {
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555;
+            background: #222; color: white; font-size: 0.95rem;
+        }
+
         .tab-container { display: flex; margin-bottom: 15px; border-bottom: 2px solid #444; }
         .tab-btn {
             flex: 1; padding: 12px; background: none; border: none; color: #888;
@@ -86,23 +104,32 @@
         }
         .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; }
 
-        .upload-btn-wrapper { text-align: center; margin-bottom: 15px; }
+        .add-card-section {
+            background: rgba(255,255,255,0.05); border: 1px dashed #666; padding: 12px;
+            border-radius: 10px; margin-bottom: 15px; text-align: center;
+        }
+        .add-card-section input[type="text"] {
+            width: 100%; padding: 8px; margin-top: 8px; margin-bottom: 8px;
+            border-radius: 6px; border: 1px solid #444; background: #111; color: white;
+        }
         .custom-upload-btn {
-            background: #3498db; color: white; padding: 10px 18px; border-radius: 10px;
-            display: inline-block; font-weight: bold; cursor: pointer; font-size: 0.9rem;
+            background: #3498db; color: white; padding: 8px 15px; border-radius: 8px;
+            display: inline-block; font-weight: bold; cursor: pointer; font-size: 0.85rem;
         }
         #file-input { display: none; }
 
-        .photo-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; flex-grow: 1;
+        /* 卡片清單展示 */
+        .card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; flex-grow: 1; }
+        .card-item {
+            display: flex; align-items: center; background: rgba(255,255,255,0.1);
+            padding: 8px; border-radius: 8px; gap: 10px; border: 2px solid transparent;
         }
-        .photo-item {
-            position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 2px solid #555;
-        }
-        .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .delete-btn {
-            position: absolute; top: 2px; right: 2px; background: red; color: white;
-            border: none; border-radius: 50%; width: 22px; height: 22px; font-weight: bold; cursor: pointer;
+        .card-item.selected-target { border-color: #2ecc71; background: rgba(46, 204, 113, 0.2); }
+        .card-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+        .card-item .card-info { flex-grow: 1; font-size: 0.85rem; color: #ddd; word-break: break-all; }
+        .card-item .delete-card-btn {
+            background: #e74c3c; color: white; border: none; padding: 5px 10px;
+            border-radius: 5px; font-weight: bold; cursor: pointer;
         }
 
         .close-modal-btn {
@@ -120,11 +147,15 @@
     </div>
 
     <div id="main-container">
-        <div class="volume-meter-container">
-            <div id="volume-text" class="volume-text">音量強度: 0 / 100 (超過 35 觸發)</div>
-            <div class="volume-meter-bar-bg">
-                <div id="volume-bar-fill" class="volume-meter-bar-fill"></div>
+        <div class="top-control-panel">
+            <div class="vu-meter" id="vu-meter">
+                <div class="vu-segment"></div><div class="vu-segment"></div>
+                <div class="vu-segment"></div><div class="vu-segment"></div>
+                <div class="vu-segment"></div><div class="vu-segment"></div>
+                <div class="vu-segment"></div><div class="vu-segment"></div>
+                <div class="vu-segment"></div><div class="vu-segment"></div>
             </div>
+            <button id="pause-btn" class="pause-toggle-btn">⏸️ 監測中</button>
         </div>
 
         <img id="display-img" class="display-image" src="" alt="提示圖片">
@@ -133,7 +164,7 @@
     </div>
 
     <div id="password-modal">
-        <h3>🔒 家長身份驗證</h3>
+        <h3>🔒 家長/老師身份驗證</h3>
         <p style="font-size:0.85rem; color:#ccc; margin-top:5px;">請輸入密碼以進行管理</p>
         <input type="password" id="pwd-input" placeholder="請輸入密碼" pattern="[0-9]*" inputmode="numeric">
         <div class="pwd-btn-group">
@@ -142,42 +173,69 @@
         </div>
     </div>
 
+    <!-- 管理面板 -->
     <div id="settings-modal">
-        <h3>⚙️ 家長圖片管理面板</h3>
+        <h3>⚙️ 個別化圖文卡片管理</h3>
 
         <div class="tab-container">
-            <button id="tab-quiet" class="tab-btn active" onclick="switchTab('quiet')">🟢 平靜獎勵圖</button>
-            <button id="tab-loud" class="tab-btn" onclick="switchTab('loud')">🔵 冷靜提示圖</button>
+            <button id="tab-quiet" class="tab-btn active" onclick="switchTab('quiet')">🟢 平靜獎勵卡</button>
+            <button id="tab-loud" class="tab-btn" onclick="switchTab('loud')">🔵 冷靜提示卡</button>
         </div>
 
-        <div class="upload-btn-wrapper">
-            <label for="file-input" id="upload-label" class="custom-upload-btn">➕ 上傳平靜獎勵圖</label>
-            <input type="file" id="file-input" accept="image/*" multiple>
+        <!-- 播放模式切換 -->
+        <div class="mode-select-box">
+            <label id="mode-label" for="mode-select">播放模式：</label>
+            <select id="mode-select">
+                <option value="random">🎲 隨機輪播所有卡片</option>
+                <!-- 指定卡片的選項會在選擇指定模式時動態產生 -->
+            </select>
         </div>
 
-        <div id="photo-grid" class="photo-grid"></div>
+        <!-- 新增卡片區 -->
+        <div class="add-card-section">
+            <label for="file-input" class="custom-upload-btn">📷 1. 選擇相片</label>
+            <input type="file" id="file-input" accept="image/*">
+            <input type="text" id="card-text-input" placeholder="2. 輸入這張圖專屬的提示文字">
+            <button id="add-card-btn" style="background:#27ae60; color:white; border:none; padding:8px 15px; border-radius:6px; font-weight:bold; width:100%; margin-top:5px;">➕ 建立圖文卡片</button>
+        </div>
+
+        <!-- 已建好的卡片清單 -->
+        <div id="card-list" class="card-list"></div>
 
         <button id="close-modal-btn" class="close-modal-btn">完成並儲存</button>
     </div>
 
     <script>
         const PARENT_PASSWORD = "0000";
-        
-        // 降低觸發門檻，讓冷靜圖更容易觸發
         const HIGH_DB_THRESHOLD = 35; 
-        const QUIET_HOLD_TIME_MS = 3000;
+        const QUIET_HOLD_TIME_MS = 180000; // 180 秒倒數
+
         const COLOR_QUIET = "#2ecc71";
         const COLOR_LOUD = "#3498db";
 
-        const DEFAULT_QUIET_IMAGES = ["https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600"];
-        const DEFAULT_LOUD_IMAGES = ["https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600"];
+        // 預設卡片（圖 + 文）
+        const DEFAULT_QUIET_CARDS = [{
+            img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600",
+            text: "保持平靜，做得好！"
+        }];
+        const DEFAULT_LOUD_CARDS = [{
+            img: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600",
+            text: "聲音太大囉，試試深呼吸..."
+        }];
 
-        let quietImages = [];
-        let loudImages = [];
+        // 卡片資料結構： [{ img: 'base64...', text: '...' }]
+        let quietCards = [];
+        let loudCards = [];
+        
+        let quietMode = 'random'; // 'random' 或 卡片 Index
+        let loudMode = 'random';  // 'random' 或 卡片 Index
+
         let currentTab = 'quiet';
+        let pendingImageBase64 = null;
 
         let audioContext, analyser, microphone, stream;
         let isLoud = false;
+        let isPaused = false;
         let quietStartTime = null;
 
         const startBtn = document.getElementById('start-btn');
@@ -185,8 +243,8 @@
         const mainContainer = document.getElementById('main-container');
         const displayImg = document.getElementById('display-img');
         const statusText = document.getElementById('status-text');
-        const volumeText = document.getElementById('volume-text');
-        const volumeBarFill = document.getElementById('volume-bar-fill');
+        const pauseBtn = document.getElementById('pause-btn');
+        const vuSegments = document.querySelectorAll('.vu-segment');
         
         const settingsIcon = document.getElementById('settings-icon');
         const passwordModal = document.getElementById('password-modal');
@@ -197,10 +255,12 @@
         const settingsModal = document.getElementById('settings-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
         const fileInput = document.getElementById('file-input');
-        const photoGrid = document.getElementById('photo-grid');
-        const uploadLabel = document.getElementById('upload-label');
+        const cardTextInput = document.getElementById('card-text-input');
+        const addCardBtn = document.getElementById('add-card-btn');
+        const cardList = document.getElementById('card-list');
+        const modeSelect = document.getElementById('mode-select');
 
-        loadStoredImages();
+        loadStoredData();
 
         startBtn.onclick = function() {
             startBtn.innerText = "正在開啟麥克風...";
@@ -233,6 +293,18 @@
                 });
         };
 
+        pauseBtn.addEventListener('click', function() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                pauseBtn.textContent = "▶️ 已暫停 (點擊恢復)";
+                pauseBtn.classList.add('paused');
+                vuSegments.forEach(s => s.className = 'vu-segment');
+            } else {
+                pauseBtn.textContent = "⏸️ 監測中";
+                pauseBtn.classList.remove('paused');
+            }
+        });
+
         settingsIcon.addEventListener('click', function() {
             pwdInput.value = '';
             passwordModal.style.display = 'flex';
@@ -247,37 +319,211 @@
             if (pwdInput.value === PARENT_PASSWORD) {
                 passwordModal.style.display = 'none';
                 settingsModal.style.display = 'flex';
-                renderPhotoGrid();
+                renderUI();
             } else {
                 alert('密碼錯誤！');
                 pwdInput.value = '';
             }
         }
 
-        closeModalBtn.addEventListener('click', function() { settingsModal.style.display = 'none'; });
+        closeModalBtn.addEventListener('click', function() {
+            saveDataToStorage();
+            settingsModal.style.display = 'none'; 
+        });
 
         window.switchTab = function(tab) {
             currentTab = tab;
             document.getElementById('tab-quiet').classList.toggle('active', tab === 'quiet');
             document.getElementById('tab-loud').classList.toggle('active', tab === 'loud');
-            uploadLabel.textContent = tab === 'quiet' ? '➕ 上傳平靜獎勵圖' : '➕ 上傳冷靜提示圖';
-            renderPhotoGrid();
+            renderUI();
         };
 
+        // 選擇圖片轉 Base64
         fileInput.addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (!files.length) return;
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-
-            Array.from(files).forEach(function(file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    targetArray.push(event.target.result);
-                    saveImagesToStorage();
-                    renderPhotoGrid();
-                };
-                reader.readAsDataURL(file);
-            });
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                pendingImageBase64 = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
 
-        function
+        // 建立卡片按鈕
+        addCardBtn.addEventListener('click', function() {
+            if (!pendingImageBase64) {
+                alert('請先選擇一張照片！');
+                return;
+            }
+            const text = cardTextInput.value.trim() || (currentTab === 'quiet' ? '保持平靜！' : '請深呼吸...');
+            
+            const targetCards = currentTab === 'quiet' ? quietCards : loudCards;
+            targetCards.push({ img: pendingImageBase64, text: text });
+            
+            pendingImageBase64 = null;
+            fileInput.value = '';
+            cardTextInput.value = '';
+            
+            saveDataToStorage();
+            renderUI();
+        });
+
+        // 模式切換事件
+        modeSelect.addEventListener('change', function() {
+            if (currentTab === 'quiet') quietMode = modeSelect.value;
+            else loudMode = modeSelect.value;
+            saveDataToStorage();
+            renderUI();
+        });
+
+        function renderUI() {
+            const targetCards = currentTab === 'quiet' ? quietCards : loudCards;
+            const currentMode = currentTab === 'quiet' ? quietMode : loudMode;
+
+            // 渲染選單下拉框
+            modeSelect.innerHTML = '<option value="random">🎲 隨機輪播所有卡片</option>';
+            targetCards.forEach((card, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `🎯 專注訓練卡片 #${index + 1}: ${card.text.substring(0, 10)}...`;
+                if (currentMode == index) opt.selected = true;
+            });
+            if (currentMode === 'random') modeSelect.value = 'random';
+
+            // 渲染卡片清單
+            cardList.innerHTML = '';
+            if (targetCards.length === 0) {
+                cardList.innerHTML = '<p style="text-align:center; color:#888; font-size:0.85rem;">目前尚未新增自訂卡片，正使用預設圖文。</p>';
+                return;
+            }
+
+            targetCards.forEach((card, index) => {
+                const item = document.createElement('div');
+                item.className = 'card-item' + (currentMode == index ? ' selected-target' : '');
+                item.innerHTML = `
+                    <img src="${card.img}">
+                    <div class="card-info">${card.text}</div>
+                    <button class="delete-card-btn" onclick="deleteCard(${index})">刪除</button>
+                `;
+                cardList.appendChild(item);
+            });
+        }
+
+        window.deleteCard = function(index) {
+            const targetCards = currentTab === 'quiet' ? quietCards : loudCards;
+            targetCards.splice(index, 1);
+            if (currentTab === 'quiet') quietMode = 'random';
+            else loudMode = 'random';
+            saveDataToStorage();
+            renderUI();
+        };
+
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem('user_quiet_cards', JSON.stringify(quietCards));
+                localStorage.setItem('user_loud_cards', JSON.stringify(loudCards));
+                localStorage.setItem('user_quiet_mode', quietMode);
+                localStorage.setItem('user_loud_mode', loudMode);
+            } catch (e) {
+                alert('儲存失敗：照片空間不足，請刪除部分照片！');
+            }
+        }
+
+        function loadStoredData() {
+            const storedQuiet = localStorage.getItem('user_quiet_cards');
+            const storedLoud = localStorage.getItem('user_loud_cards');
+            const storedQMode = localStorage.getItem('user_quiet_mode');
+            const storedLMode = localStorage.getItem('user_loud_mode');
+            
+            if (storedQuiet) { try { quietCards = JSON.parse(storedQuiet); } catch(e) {} }
+            if (storedLoud) { try { loudCards = JSON.parse(storedLoud); } catch(e) {} }
+            if (storedQMode) quietMode = storedQMode;
+            if (storedLMode) loudMode = storedLMode;
+        }
+
+        function processAudio() {
+            if (!isPaused && analyser) {
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(dataArray);
+
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+                
+                let rawDb = Math.round(((sum / dataArray.length) / 255) * 100);
+                let currentDb = Math.min(Math.round(rawDb * 2.2), 100); 
+
+                let activeBarCount = Math.min(Math.floor(currentDb / 10), 10);
+                
+                vuSegments.forEach((segment, index) => {
+                    segment.className = 'vu-segment';
+                    if (index < activeBarCount) {
+                        if (index < 5) segment.classList.add('active-green');
+                        else if (index < 8) segment.classList.add('active-yellow');
+                        else segment.classList.add('active-red');
+                    }
+                });
+
+                if (isLoud) {
+                    mainContainer.style.backgroundColor = COLOR_LOUD;
+                } else {
+                    mainContainer.style.backgroundColor = COLOR_QUIET;
+                }
+
+                const now = Date.now();
+
+                if (currentDb > HIGH_DB_THRESHOLD) {
+                    quietStartTime = null;
+                    if (!isLoud) setLoudState();
+                } else {
+                    if (isLoud) {
+                        if (!quietStartTime) {
+                            quietStartTime = now;
+                        } else {
+                            let elapsed = now - quietStartTime;
+                            let remainingSec = Math.ceil((QUIET_HOLD_TIME_MS - elapsed) / 1000);
+
+                            if (remainingSec > 0) {
+                                const card = getActiveCard('loud');
+                                statusText.textContent = `${card.text} (倒數 ${remainingSec} 秒)`;
+                            } else {
+                                setQuietState();
+                            }
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(processAudio);
+        }
+
+        function getActiveCard(type) {
+            const cards = type === 'quiet' ? (quietCards.length > 0 ? quietCards : DEFAULT_QUIET_CARDS) 
+                                           : (loudCards.length > 0 ? loudCards : DEFAULT_LOUD_CARDS);
+            const mode = type === 'quiet' ? quietMode : loudMode;
+
+            if (mode === 'random' || mode >= cards.length) {
+                return cards[Math.floor(Math.random() * cards.length)];
+            } else {
+                return cards[mode]; // 指定單一卡片
+            }
+        }
+
+        function setQuietState() {
+            isLoud = false;
+            mainContainer.style.backgroundColor = COLOR_QUIET;
+            const card = getActiveCard('quiet');
+            displayImg.src = card.img;
+            displayImg.style.display = 'block';
+            statusText.textContent = card.text;
+        }
+
+        function setLoudState() {
+            isLoud = true;
+            mainContainer.style.backgroundColor = COLOR_LOUD;
+            const card = getActiveCard('loud');
+            displayImg.src = card.img;
+            displayImg.style.display = 'block';
+            statusText.textContent = card.text;
+        }
+    </script>
+</body>
+</html>
