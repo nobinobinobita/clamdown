@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
-        body, html { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+        body, html { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; background: #2c3e50; }
 
         #start-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -16,9 +16,9 @@
             justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px;
         }
         #start-btn {
-            margin-top: 20px; padding: 15px 40px; font-size: 1.2rem; border: none;
-            border-radius: 30px; background: #27ae60; color: white; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin-top: 20px; padding: 18px 45px; font-size: 1.3rem; border: none;
+            border-radius: 35px; background: #27ae60; color: white; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         #main-container {
@@ -37,24 +37,22 @@
         }
 
         #settings-icon {
-            position: absolute; bottom: 15px; right: 15px; font-size: 1.5rem;
-            color: rgba(255,255,255,0.4); z-index: 50; cursor: pointer; padding: 10px;
+            position: absolute; bottom: 15px; right: 15px; font-size: 1.8rem;
+            color: rgba(255,255,255,0.5); z-index: 50; cursor: pointer; padding: 10px;
         }
 
         /* 密碼驗證彈窗 */
         #password-modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); color: white; display: none; flex-direction: column;
+            background: rgba(0, 0, 0, 0.88); color: white; display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 300; padding: 20px;
         }
         #password-modal input {
-            padding: 12px 20px; font-size: 1.2rem; text-align: center; border-radius: 10px;
-            border: 2px solid #3498db; margin: 15px 0; width: 200px; outline: none;
+            padding: 12px 20px; font-size: 1.3rem; text-align: center; border-radius: 10px;
+            border: 2px solid #3498db; margin: 15px 0; width: 220px; outline: none; background: #fff; color: #000;
         }
         .pwd-btn-group { display: flex; gap: 10px; }
-        .pwd-btn {
-            padding: 10px 25px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;
-        }
+        .pwd-btn { padding: 12px 28px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
         .pwd-confirm { background: #3498db; color: white; }
         .pwd-cancel { background: #e74c3c; color: white; }
 
@@ -66,7 +64,6 @@
         }
         #settings-modal h3 { margin-bottom: 15px; text-align: center; font-size: 1.3rem; }
 
-        /* 頁籤切換 (Tabs) */
         .tab-container { display: flex; margin-bottom: 15px; border-bottom: 2px solid #444; }
         .tab-btn {
             flex: 1; padding: 12px; background: none; border: none; color: #888;
@@ -117,7 +114,7 @@
     <div id="password-modal">
         <h3>🔒 家長身份驗證</h3>
         <p style="font-size:0.85rem; color:#ccc; margin-top:5px;">請輸入家長密碼以存取設定</p>
-        <input type="password" id="pwd-input" placeholder="密碼 0000" pattern="[0-9]*" inputmode="numeric">
+        <input type="password" id="pwd-input" placeholder="預設密碼 0000" pattern="[0-9]*" inputmode="numeric">
         <div class="pwd-btn-group">
             <button class="pwd-btn pwd-cancel" id="pwd-cancel-btn">取消</button>
             <button class="pwd-btn pwd-confirm" id="pwd-confirm-btn">確定</button>
@@ -144,7 +141,6 @@
     </div>
 
     <script>
-        // 家長固定密碼設定為 0000
         const PARENT_PASSWORD = "0000";
 
         const HIGH_DB_THRESHOLD = 60;
@@ -171,104 +167,4 @@
         
         const settingsIcon = document.getElementById('settings-icon');
         const passwordModal = document.getElementById('password-modal');
-        const pwdInput = document.getElementById('pwd-input');
-        const pwdConfirmBtn = document.getElementById('pwd-confirm-btn');
-        const pwdCancelBtn = document.getElementById('pwd-cancel-btn');
-
-        const settingsModal = document.getElementById('settings-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const fileInput = document.getElementById('file-input');
-        const photoGrid = document.getElementById('photo-grid');
-        const uploadLabel = document.getElementById('upload-label');
-
-        loadStoredImages();
-
-        startBtn.addEventListener('click', async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(stream);
-                analyser.fftSize = 256;
-                microphone.connect(analyser);
-
-                startOverlay.style.display = 'none';
-                setQuietState();
-                processAudio();
-            } catch (err) {
-                alert('無法開啟麥克風，請檢查授權設定。');
-            }
-        });
-
-        settingsIcon.addEventListener('click', () => {
-            pwdInput.value = '';
-            passwordModal.style.display = 'flex';
-            pwdInput.focus();
-        });
-
-        pwdCancelBtn.addEventListener('click', () => {
-            passwordModal.style.display = 'none';
-        });
-
-        pwdConfirmBtn.addEventListener('click', verifyPassword);
-        pwdInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') verifyPassword();
-        });
-
-        function verifyPassword() {
-            if (pwdInput.value === PARENT_PASSWORD) {
-                passwordModal.style.display = 'none';
-                settingsModal.style.display = 'flex';
-                renderPhotoGrid();
-            } else {
-                alert('密碼錯誤！');
-                pwdInput.value = '';
-            }
-        }
-
-        closeModalBtn.addEventListener('click', () => { settingsModal.style.display = 'none'; });
-
-        window.switchTab = function(tab) {
-            currentTab = tab;
-            document.getElementById('tab-quiet').classList.toggle('active', tab === 'quiet');
-            document.getElementById('tab-loud').classList.toggle('active', tab === 'loud');
-            uploadLabel.textContent = tab === 'quiet' ? '➕ 上傳平靜獎勵圖' : '➕ 上傳冷靜提示圖';
-            renderPhotoGrid();
-        };
-
-        fileInput.addEventListener('change', (e) => {
-            const files = e.target.files;
-            if (!files.length) return;
-
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-
-            Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    targetArray.push(event.target.result);
-                    saveImagesToStorage();
-                    renderPhotoGrid();
-                };
-                reader.readAsDataURL(file);
-            });
-        });
-
-        function renderPhotoGrid() {
-            photoGrid.innerHTML = '';
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-
-            targetArray.forEach((imgSrc, index) => {
-                const item = document.createElement('div');
-                item.className = 'photo-item';
-                item.innerHTML = `
-                    <img src="${imgSrc}">
-                    <button class="delete-btn" onclick="deleteImage(${index})">×</button>
-                `;
-                photoGrid.appendChild(item);
-            });
-        }
-
-        window.deleteImage = function(index) {
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-            targetArray.splice(index, 1);
-            saveImagesTo
+        const pwdInput = document
