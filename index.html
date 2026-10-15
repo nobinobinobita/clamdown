@@ -26,7 +26,6 @@
             justify-content: center; align-items: center; transition: background-color 0.8s ease; position: relative;
         }
 
-        /* 長期顯示的頂部音量表 */
         .volume-meter-container {
             position: absolute; top: 20px; left: 5%; width: 90%;
             background: rgba(0, 0, 0, 0.25); border-radius: 15px; padding: 10px 15px;
@@ -37,7 +36,7 @@
             border-radius: 8px; overflow: hidden; margin-top: 5px;
         }
         .volume-meter-bar-fill {
-            height: 100%; width: 0%; background: #2ecc71;
+            height: 100%; width: 0%; background: #ffffff;
             transition: width 0.1s ease-out, background-color 0.3s ease; border-radius: 8px;
         }
         .volume-text {
@@ -59,7 +58,6 @@
             color: rgba(255,255,255,0.4); z-index: 50; cursor: pointer; padding: 10px;
         }
 
-        /* 密碼視窗（不暴露密碼） */
         #password-modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); color: white; display: none; flex-direction: column;
@@ -122,9 +120,8 @@
     </div>
 
     <div id="main-container">
-        <!-- 長期顯示的音量指示條 -->
         <div class="volume-meter-container">
-            <div id="volume-text" class="volume-text">音量強度: 0 / 100</div>
+            <div id="volume-text" class="volume-text">音量強度: 0 / 100 (超過 35 觸發)</div>
             <div class="volume-meter-bar-bg">
                 <div id="volume-bar-fill" class="volume-meter-bar-fill"></div>
             </div>
@@ -165,7 +162,9 @@
 
     <script>
         const PARENT_PASSWORD = "0000";
-        const HIGH_DB_THRESHOLD = 60;
+        
+        // 降低觸發門檻，讓冷靜圖更容易觸發
+        const HIGH_DB_THRESHOLD = 35; 
         const QUIET_HOLD_TIME_MS = 3000;
         const COLOR_QUIET = "#2ecc71";
         const COLOR_LOUD = "#3498db";
@@ -281,93 +280,4 @@
             });
         });
 
-        function renderPhotoGrid() {
-            photoGrid.innerHTML = '';
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-
-            targetArray.forEach(function(imgSrc, index) {
-                const item = document.createElement('div');
-                item.className = 'photo-item';
-                item.innerHTML = '<img src="' + imgSrc + '"><button class="delete-btn" onclick="deleteImage(' + index + ')">×</button>';
-                photoGrid.appendChild(item);
-            });
-        }
-
-        window.deleteImage = function(index) {
-            const targetArray = currentTab === 'quiet' ? quietImages : loudImages;
-            targetArray.splice(index, 1);
-            saveImagesToStorage();
-            renderPhotoGrid();
-        };
-
-        function saveImagesToStorage() {
-            try {
-                localStorage.setItem('user_quiet_images', JSON.stringify(quietImages));
-                localStorage.setItem('user_loud_images', JSON.stringify(loudImages));
-            } catch (e) {
-                alert('儲存失敗：照片空間不足！');
-            }
-        }
-
-        function loadStoredImages() {
-            const storedQuiet = localStorage.getItem('user_quiet_images');
-            const storedLoud = localStorage.getItem('user_loud_images');
-            if (storedQuiet) { try { quietImages = JSON.parse(storedQuiet); } catch(e) {} }
-            if (storedLoud) { try { loudImages = JSON.parse(storedLoud); } catch(e) {} }
-        }
-
-        function processAudio() {
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            analyser.getByteFrequencyData(dataArray);
-
-            let sum = 0;
-            for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-            let currentDb = Math.round(((sum / dataArray.length) / 255) * 100);
-
-            // 更新音量指數文字與進度條
-            volumeText.textContent = `音量強度: ${currentDb} / 100`;
-            volumeBarFill.style.width = `${Math.min(currentDb * 1.2, 100)}%`;
-
-            if (currentDb > HIGH_DB_THRESHOLD) {
-                volumeBarFill.style.backgroundColor = '#e74c3c'; // 太大聲時變成紅色指示
-            } else {
-                volumeBarFill.style.backgroundColor = '#ffffff';
-            }
-
-            const now = Date.now();
-
-            if (currentDb > HIGH_DB_THRESHOLD) {
-                quietStartTime = null;
-                if (!isLoud) setLoudState();
-            } else {
-                if (isLoud) {
-                    if (!quietStartTime) {
-                        quietStartTime = now;
-                    } else if (now - quietStartTime >= QUIET_HOLD_TIME_MS) {
-                        setQuietState();
-                    }
-                }
-            }
-            requestAnimationFrame(processAudio);
-        }
-
-        function setQuietState() {
-            isLoud = false;
-            mainContainer.style.backgroundColor = COLOR_QUIET;
-            const activeList = quietImages.length > 0 ? quietImages : DEFAULT_QUIET_IMAGES;
-            displayImg.src = activeList[Math.floor(Math.random() * activeList.length)];
-            displayImg.style.display = 'block';
-            statusText.textContent = "保持平靜，做得好！";
-        }
-
-        function setLoudState() {
-            isLoud = true;
-            mainContainer.style.backgroundColor = COLOR_LOUD;
-            const activeList = loudImages.length > 0 ? loudImages : DEFAULT_LOUD_IMAGES;
-            displayImg.src = activeList[Math.floor(Math.random() * activeList.length)];
-            displayImg.style.display = 'block';
-            statusText.textContent = "聲音太大囉，試試這個冷靜方法...";
-        }
-    </script>
-</body>
-</html>
+        function
