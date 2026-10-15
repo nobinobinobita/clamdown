@@ -13,11 +13,13 @@
         #start-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c3e50; color: #ffffff; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 20px;
+            justify-content: center; align-items: center; z-index: 100; text-align: center; padding: 5vw;
         }
+        #start-overlay h2 { font-size: clamp(1.8rem, 6vw, 3.5rem); }
+        #start-overlay p { font-size: clamp(0.9rem, 3vw, 1.5rem); margin-top: 10px; opacity: 0.8; }
         #start-btn {
-            margin-top: 20px; padding: 15px 40px; font-size: 1.2rem; border: none;
-            border-radius: 30px; background: #27ae60; color: white; font-weight: bold; cursor: pointer;
+            margin-top: 25px; padding: 3vh 8vw; font-size: clamp(1.1rem, 4vw, 2rem); border: none;
+            border-radius: 40px; background: #27ae60; color: white; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
@@ -26,16 +28,18 @@
             justify-content: center; align-items: center; transition: background-color 0.5s ease; position: relative;
         }
 
+        /* 頂部控制面板 */
         .top-control-panel {
-            position: absolute; top: 15px; left: 3%; width: 94%;
+            position: absolute; top: 2vh; left: 3%; width: 94%;
             display: flex; justify-content: space-between; align-items: center;
             background: rgba(0, 0, 0, 0.3); border-radius: 20px; padding: 10px 15px;
             backdrop-filter: blur(8px); z-index: 10;
         }
 
+        /* 可動態改變格數的 VU 音量表 */
         .vu-meter {
-            display: flex; gap: 4px; flex-grow: 1; max-width: 60%; height: 22px;
-            background: rgba(0,0,0,0.4); padding: 3px; border-radius: 6px;
+            display: flex; gap: 4px; flex-grow: 1; max-width: 65%; height: clamp(18px, 3vh, 30px);
+            background: rgba(0,0,0,0.4); padding: 3px; border-radius: 8px;
         }
         .vu-segment {
             flex: 1; background: rgba(255, 255, 255, 0.15); border-radius: 3px;
@@ -47,23 +51,24 @@
 
         .pause-toggle-btn {
             background: rgba(255,255,255,0.25); color: white; border: 1px solid rgba(255,255,255,0.5);
-            padding: 8px 14px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;
+            padding: 8px 14px; border-radius: 12px; font-weight: bold; font-size: clamp(0.75rem, 2.5vw, 1.1rem);
             cursor: pointer; display: flex; align-items: center; gap: 5px;
         }
         .pause-toggle-btn.paused { background: #e67e22; border-color: #d35400; }
 
         .display-image {
-            max-width: 85%; max-height: 52vh; border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; object-fit: contain; margin-top: 50px;
+            max-width: 85%; max-height: 50vh; border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; object-fit: contain; margin-top: 60px;
         }
 
+        /* 根據螢幕尺寸動態縮放的文字 */
         .status-text {
-            margin-top: 20px; font-size: 1.6rem; font-weight: bold; color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3); text-align: center; padding: 0 20px;
+            margin-top: 25px; font-size: clamp(1.3rem, 4.5vw, 2.8rem); font-weight: bold; color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4); text-align: center; padding: 0 5vw; line-height: 1.3;
         }
 
         #settings-icon {
-            position: absolute; bottom: 15px; right: 15px; font-size: 1.5rem;
+            position: absolute; bottom: 2vh; right: 3vw; font-size: clamp(1.5rem, 5vw, 2.5rem);
             color: rgba(255,255,255,0.4); z-index: 50; cursor: pointer; padding: 10px;
         }
 
@@ -86,21 +91,22 @@
             background: rgba(0, 0, 0, 0.95); color: white; display: none; flex-direction: column;
             z-index: 200; padding: 20px; box-sizing: border-box; overflow-y: auto;
         }
-        #settings-modal h3 { margin-bottom: 15px; text-align: center; font-size: 1.3rem; }
+        #settings-modal h3 { margin-bottom: 15px; text-align: center; font-size: clamp(1.1rem, 3.5vw, 1.6rem); }
 
-        .mode-select-box {
-            background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; margin-bottom: 15px;
+        .param-group {
+            background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; margin-bottom: 12px;
         }
-        .mode-select-box label { font-size: 0.85rem; color: #ccc; display: block; margin-bottom: 5px; }
-        .mode-select-box select {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #555;
-            background: #222; color: white; font-size: 0.95rem;
+        .param-group label { font-size: clamp(0.8rem, 2.5vw, 1rem); color: #ccc; display: block; margin-bottom: 6px; }
+        .param-group input[type="range"] { width: 100%; margin-top: 5px; }
+        .param-group input[type="number"], .param-group select {
+            width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #555;
+            background: #222; color: white; font-size: clamp(0.85rem, 2.5vw, 1rem);
         }
 
-        .tab-container { display: flex; margin-bottom: 15px; border-bottom: 2px solid #444; }
+        .tab-container { display: flex; margin-bottom: 12px; border-bottom: 2px solid #444; }
         .tab-btn {
-            flex: 1; padding: 12px; background: none; border: none; color: #888;
-            font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center;
+            flex: 1; padding: 10px; background: none; border: none; color: #888;
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem); font-weight: bold; cursor: pointer; text-align: center;
         }
         .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; }
 
@@ -110,7 +116,7 @@
         }
         .add-card-section input[type="text"] {
             width: 100%; padding: 8px; margin-top: 8px; margin-bottom: 8px;
-            border-radius: 6px; border: 1px solid #444; background: #111; color: white;
+            border-radius: 6px; border: 1px solid #444; background: #111; color: white; font-size: 0.9rem;
         }
         .custom-upload-btn {
             background: #3498db; color: white; padding: 8px 15px; border-radius: 8px;
@@ -118,14 +124,13 @@
         }
         #file-input { display: none; }
 
-        /* 卡片清單展示 */
         .card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; flex-grow: 1; }
         .card-item {
             display: flex; align-items: center; background: rgba(255,255,255,0.1);
             padding: 8px; border-radius: 8px; gap: 10px; border: 2px solid transparent;
         }
         .card-item.selected-target { border-color: #2ecc71; background: rgba(46, 204, 113, 0.2); }
-        .card-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+        .card-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
         .card-item .card-info { flex-grow: 1; font-size: 0.85rem; color: #ddd; word-break: break-all; }
         .card-item .delete-card-btn {
             background: #e74c3c; color: white; border: none; padding: 5px 10px;
@@ -142,19 +147,13 @@
 
     <div id="start-overlay">
         <h2>聲音視覺提示器</h2>
-        <p style="margin-top:10px; opacity:0.8;">請點擊按鈕開啟麥克風監測</p>
+        <p>請點擊按鈕開啟麥克風監測</p>
         <button id="start-btn">開始使用</button>
     </div>
 
     <div id="main-container">
         <div class="top-control-panel">
-            <div class="vu-meter" id="vu-meter">
-                <div class="vu-segment"></div><div class="vu-segment"></div>
-                <div class="vu-segment"></div><div class="vu-segment"></div>
-                <div class="vu-segment"></div><div class="vu-segment"></div>
-                <div class="vu-segment"></div><div class="vu-segment"></div>
-                <div class="vu-segment"></div><div class="vu-segment"></div>
-            </div>
+            <div class="vu-meter" id="vu-meter"></div>
             <button id="pause-btn" class="pause-toggle-btn">⏸️ 監測中</button>
         </div>
 
@@ -175,31 +174,47 @@
 
     <!-- 管理面板 -->
     <div id="settings-modal">
-        <h3>⚙️ 個別化圖文卡片管理</h3>
+        <h3>⚙️ 個別化參數與圖文設定</h3>
+
+        <!-- 參數設定區 -->
+        <div class="param-group">
+            <label for="threshold-slider">🎚️ 觸發分貝門檻 (目前：<span id="threshold-val">35</span>)：</label>
+            <input type="range" id="threshold-slider" min="15" max="80" value="35">
+        </div>
+
+        <div class="param-group">
+            <label for="cooldown-sec-input">⏱️ 冷靜持續時間 (秒)：</label>
+            <input type="number" id="cooldown-sec-input" min="5" max="600" value="180">
+        </div>
+
+        <div class="param-group">
+            <label for="vu-count-select">📊 音量表顯示格數：</label>
+            <select id="vu-count-select">
+                <option value="5">5 格 (簡潔視圖)</option>
+                <option value="10" selected>10 格 (標準視圖)</option>
+                <option value="15">15 格 (精細視圖)</option>
+            </select>
+        </div>
 
         <div class="tab-container">
             <button id="tab-quiet" class="tab-btn active" onclick="switchTab('quiet')">🟢 平靜獎勵卡</button>
             <button id="tab-loud" class="tab-btn" onclick="switchTab('loud')">🔵 冷靜提示卡</button>
         </div>
 
-        <!-- 播放模式切換 -->
-        <div class="mode-select-box">
-            <label id="mode-label" for="mode-select">播放模式：</label>
+        <div class="param-group">
+            <label id="mode-label" for="mode-select">卡片播放模式：</label>
             <select id="mode-select">
                 <option value="random">🎲 隨機輪播所有卡片</option>
-                <!-- 指定卡片的選項會在選擇指定模式時動態產生 -->
             </select>
         </div>
 
-        <!-- 新增卡片區 -->
         <div class="add-card-section">
             <label for="file-input" class="custom-upload-btn">📷 1. 選擇相片</label>
             <input type="file" id="file-input" accept="image/*">
-            <input type="text" id="card-text-input" placeholder="2. 輸入這張圖專屬的提示文字">
+            <input type="text" id="card-text-input" placeholder="2. 輸入專屬提示/獎勵文字">
             <button id="add-card-btn" style="background:#27ae60; color:white; border:none; padding:8px 15px; border-radius:6px; font-weight:bold; width:100%; margin-top:5px;">➕ 建立圖文卡片</button>
         </div>
 
-        <!-- 已建好的卡片清單 -->
         <div id="card-list" class="card-list"></div>
 
         <button id="close-modal-btn" class="close-modal-btn">完成並儲存</button>
@@ -207,13 +222,14 @@
 
     <script>
         const PARENT_PASSWORD = "0000";
-        const HIGH_DB_THRESHOLD = 35; 
-        const QUIET_HOLD_TIME_MS = 180000; // 180 秒倒數
-
         const COLOR_QUIET = "#2ecc71";
         const COLOR_LOUD = "#3498db";
 
-        // 預設卡片（圖 + 文）
+        // 動態參數預設值
+        let highDbThreshold = 35; 
+        let quietHoldTimeMs = 180000; // 180 秒
+        let vuSegmentCount = 10;     // 10 格音量表
+
         const DEFAULT_QUIET_CARDS = [{
             img: "https://images.unsplash.com/photo-1532105956626-9569c03602f6?w=600",
             text: "保持平靜，做得好！"
@@ -223,12 +239,10 @@
             text: "聲音太大囉，試試深呼吸..."
         }];
 
-        // 卡片資料結構： [{ img: 'base64...', text: '...' }]
         let quietCards = [];
         let loudCards = [];
-        
-        let quietMode = 'random'; // 'random' 或 卡片 Index
-        let loudMode = 'random';  // 'random' 或 卡片 Index
+        let quietMode = 'random';
+        let loudMode = 'random';
 
         let currentTab = 'quiet';
         let pendingImageBase64 = null;
@@ -244,7 +258,7 @@
         const displayImg = document.getElementById('display-img');
         const statusText = document.getElementById('status-text');
         const pauseBtn = document.getElementById('pause-btn');
-        const vuSegments = document.querySelectorAll('.vu-segment');
+        const vuMeter = document.getElementById('vu-meter');
         
         const settingsIcon = document.getElementById('settings-icon');
         const passwordModal = document.getElementById('password-modal');
@@ -260,7 +274,13 @@
         const cardList = document.getElementById('card-list');
         const modeSelect = document.getElementById('mode-select');
 
+        const thresholdSlider = document.getElementById('threshold-slider');
+        const thresholdVal = document.getElementById('threshold-val');
+        const cooldownSecInput = document.getElementById('cooldown-sec-input');
+        const vuCountSelect = document.getElementById('vu-count-select');
+
         loadStoredData();
+        buildVuMeterSegments();
 
         startBtn.onclick = function() {
             startBtn.innerText = "正在開啟麥克風...";
@@ -298,12 +318,36 @@
             if (isPaused) {
                 pauseBtn.textContent = "▶️ 已暫停 (點擊恢復)";
                 pauseBtn.classList.add('paused');
-                vuSegments.forEach(s => s.className = 'vu-segment');
+                document.querySelectorAll('.vu-segment').forEach(s => s.className = 'vu-segment');
             } else {
                 pauseBtn.textContent = "⏸️ 監測中";
                 pauseBtn.classList.remove('paused');
             }
         });
+
+        // 參數變更即時連動
+        thresholdSlider.addEventListener('input', function() {
+            highDbThreshold = parseInt(this.value);
+            thresholdVal.textContent = highDbThreshold;
+        });
+
+        cooldownSecInput.addEventListener('change', function() {
+            quietHoldTimeMs = Math.max(5, parseInt(this.value) || 10) * 1000;
+        });
+
+        vuCountSelect.addEventListener('change', function() {
+            vuSegmentCount = parseInt(this.value);
+            buildVuMeterSegments();
+        });
+
+        function buildVuMeterSegments() {
+            vuMeter.innerHTML = '';
+            for (let i = 0; i < vuSegmentCount; i++) {
+                const seg = document.createElement('div');
+                seg.className = 'vu-segment';
+                vuMeter.appendChild(seg);
+            }
+        }
 
         settingsIcon.addEventListener('click', function() {
             pwdInput.value = '';
@@ -319,6 +363,13 @@
             if (pwdInput.value === PARENT_PASSWORD) {
                 passwordModal.style.display = 'none';
                 settingsModal.style.display = 'flex';
+                
+                // 帶入目前設定值
+                thresholdSlider.value = highDbThreshold;
+                thresholdVal.textContent = highDbThreshold;
+                cooldownSecInput.value = quietHoldTimeMs / 1000;
+                vuCountSelect.value = vuSegmentCount;
+
                 renderUI();
             } else {
                 alert('密碼錯誤！');
@@ -338,37 +389,30 @@
             renderUI();
         };
 
-        // 選擇圖片轉 Base64
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(event) {
-                pendingImageBase64 = event.target.result;
-            };
+            reader.onload = function(event) { pendingImageBase64 = event.target.result; };
             reader.readAsDataURL(file);
         });
 
-        // 建立卡片按鈕
         addCardBtn.addEventListener('click', function() {
             if (!pendingImageBase64) {
                 alert('請先選擇一張照片！');
                 return;
             }
             const text = cardTextInput.value.trim() || (currentTab === 'quiet' ? '保持平靜！' : '請深呼吸...');
-            
             const targetCards = currentTab === 'quiet' ? quietCards : loudCards;
             targetCards.push({ img: pendingImageBase64, text: text });
             
             pendingImageBase64 = null;
             fileInput.value = '';
             cardTextInput.value = '';
-            
             saveDataToStorage();
             renderUI();
         });
 
-        // 模式切換事件
         modeSelect.addEventListener('change', function() {
             if (currentTab === 'quiet') quietMode = modeSelect.value;
             else loudMode = modeSelect.value;
@@ -380,7 +424,6 @@
             const targetCards = currentTab === 'quiet' ? quietCards : loudCards;
             const currentMode = currentTab === 'quiet' ? quietMode : loudMode;
 
-            // 渲染選單下拉框
             modeSelect.innerHTML = '<option value="random">🎲 隨機輪播所有卡片</option>';
             targetCards.forEach((card, index) => {
                 const opt = document.createElement('option');
@@ -390,7 +433,6 @@
             });
             if (currentMode === 'random') modeSelect.value = 'random';
 
-            // 渲染卡片清單
             cardList.innerHTML = '';
             if (targetCards.length === 0) {
                 cardList.innerHTML = '<p style="text-align:center; color:#888; font-size:0.85rem;">目前尚未新增自訂卡片，正使用預設圖文。</p>';
@@ -424,8 +466,11 @@
                 localStorage.setItem('user_loud_cards', JSON.stringify(loudCards));
                 localStorage.setItem('user_quiet_mode', quietMode);
                 localStorage.setItem('user_loud_mode', loudMode);
+                localStorage.setItem('user_threshold', highDbThreshold);
+                localStorage.setItem('user_cooldown_ms', quietHoldTimeMs);
+                localStorage.setItem('user_vu_count', vuSegmentCount);
             } catch (e) {
-                alert('儲存失敗：照片空間不足，請刪除部分照片！');
+                alert('儲存失敗：照片空間不足！');
             }
         }
 
@@ -434,11 +479,17 @@
             const storedLoud = localStorage.getItem('user_loud_cards');
             const storedQMode = localStorage.getItem('user_quiet_mode');
             const storedLMode = localStorage.getItem('user_loud_mode');
+            const storedThresh = localStorage.getItem('user_threshold');
+            const storedCool = localStorage.getItem('user_cooldown_ms');
+            const storedVu = localStorage.getItem('user_vu_count');
             
             if (storedQuiet) { try { quietCards = JSON.parse(storedQuiet); } catch(e) {} }
             if (storedLoud) { try { loudCards = JSON.parse(storedLoud); } catch(e) {} }
             if (storedQMode) quietMode = storedQMode;
             if (storedLMode) loudMode = storedLMode;
+            if (storedThresh) highDbThreshold = parseInt(storedThresh);
+            if (storedCool) quietHoldTimeMs = parseInt(storedCool);
+            if (storedVu) vuSegmentCount = parseInt(storedVu);
         }
 
         function processAudio() {
@@ -452,13 +503,16 @@
                 let rawDb = Math.round(((sum / dataArray.length) / 255) * 100);
                 let currentDb = Math.min(Math.round(rawDb * 2.2), 100); 
 
-                let activeBarCount = Math.min(Math.floor(currentDb / 10), 10);
+                // 根據自訂格數計算比率
+                let activeBarCount = Math.min(Math.floor((currentDb / 100) * vuSegmentCount), vuSegmentCount);
+                const segments = document.querySelectorAll('.vu-segment');
                 
-                vuSegments.forEach((segment, index) => {
+                segments.forEach((segment, index) => {
                     segment.className = 'vu-segment';
                     if (index < activeBarCount) {
-                        if (index < 5) segment.classList.add('active-green');
-                        else if (index < 8) segment.classList.add('active-yellow');
+                        let ratio = index / vuSegmentCount;
+                        if (ratio < 0.5) segment.classList.add('active-green');
+                        else if (ratio < 0.8) segment.classList.add('active-yellow');
                         else segment.classList.add('active-red');
                     }
                 });
@@ -471,7 +525,7 @@
 
                 const now = Date.now();
 
-                if (currentDb > HIGH_DB_THRESHOLD) {
+                if (currentDb > highDbThreshold) {
                     quietStartTime = null;
                     if (!isLoud) setLoudState();
                 } else {
@@ -480,7 +534,7 @@
                             quietStartTime = now;
                         } else {
                             let elapsed = now - quietStartTime;
-                            let remainingSec = Math.ceil((QUIET_HOLD_TIME_MS - elapsed) / 1000);
+                            let remainingSec = Math.ceil((quietHoldTimeMs - elapsed) / 1000);
 
                             if (remainingSec > 0) {
                                 const card = getActiveCard('loud');
@@ -503,7 +557,7 @@
             if (mode === 'random' || mode >= cards.length) {
                 return cards[Math.floor(Math.random() * cards.length)];
             } else {
-                return cards[mode]; // 指定單一卡片
+                return cards[mode];
             }
         }
 
